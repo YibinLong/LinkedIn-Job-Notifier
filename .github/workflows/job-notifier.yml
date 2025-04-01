@@ -18,7 +18,9 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install email_validator python-dotenv
+        run: |
+          pip install email_validator
+          pip install python-dotenv
 
       - name: Send Job Notification Email
         env:
