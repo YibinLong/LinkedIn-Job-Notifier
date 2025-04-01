@@ -44,6 +44,7 @@ def send_email():
     <html>
     <head></head>
     <body>
+    <p><a href="https://www.gmail.com">Gmail Link</a></p>
     <p>Apply to jobs released within the last hour:</p>
     """
     
@@ -56,7 +57,8 @@ def send_email():
     """
     
     # Plain text version as fallback
-    text_body = "Apply to thesejobs released within the last hour:\n\n"
+    text_body = "Gmail: https://www.gmail.com\n\n"
+    text_body += "Apply to these jobs released within the last hour:\n\n"
     for title, link in job_links:
         text_body += f"{title}: {link}\n\n"
 
