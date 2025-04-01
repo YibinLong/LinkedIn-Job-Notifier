@@ -1,0 +1,29 @@
+name: Job Notifier
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Every hour, on the hour
+  workflow_dispatch: # Allows you to trigger manually
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install email_validator
+
+      - name: Send Job Notification Email
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          OUTLOOK_APP_PASSWORD: ${{ secrets.OUTLOOK_APP_PASSWORD }}
+          SEARCH_TERMS: ${{ secrets.SEARCH_TERMS }}
+        run: python scripts/send_email.py
