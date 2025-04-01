@@ -10,6 +10,7 @@ load_dotenv()
 # First check GitHub Actions environment variables, and fall back to .env if not found
 sender_email = os.environ['SENDER_EMAIL'] 
 receiver_email = os.environ['RECEIVER_EMAIL']
+cc_email = os.environ['CC_EMAIL']
 gmail_app_password = os.environ['GMAIL_APP_PASSWORD']
 
 # Edit this list to change your job search terms
@@ -20,7 +21,8 @@ smtp_server = "smtp.gmail.com"
 smtp_port = 587
 
 # LinkedIn job search parameters
-geo_id = "101174742"  # Set to US
+geo_id_ca = "101174742"
+geo_id_usa = "103644278"
 time_filter = "r3600"  # Last hour
 
 def generate_links():
@@ -32,8 +34,8 @@ def generate_links():
         # Replace spaces with %20 and ensure term is properly formatted for URL
         keywords = term_stripped.replace(" ", "%20")
         # Create two links - one for US and one for Canada
-        us_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId={geo_id}&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
-        canada_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId=101174742&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
+        us_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId={geo_id_usa}&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
+        canada_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId={geo_id_ca}&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
         
         # Store by term for grouped display
         links_by_term[title] = [
@@ -81,6 +83,13 @@ def send_email():
     msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
     msg['To'] = receiver_email
+    
+    # Add CC if specified
+    recipients = [receiver_email]
+    if cc_email:
+        msg['Cc'] = cc_email
+        recipients.append(cc_email)
+        
     msg['Subject'] = subject
     
     # Attach both plain text and HTML versions
@@ -91,7 +100,7 @@ def send_email():
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
         server.login(sender_email, gmail_app_password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.sendmail(sender_email, recipients, msg.as_string())
         server.quit()
         print("✅ Email sent successfully!")
     except Exception as e:
