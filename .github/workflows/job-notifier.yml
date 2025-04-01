@@ -18,12 +18,12 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install email_validator
+        run: pip install email_validator python-dotenv
 
       - name: Send Job Notification Email
         env:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
-          OUTLOOK_APP_PASSWORD: ${{ secrets.OUTLOOK_APP_PASSWORD }}
-          SEARCH_TERMS: ${{ secrets.SEARCH_TERMS }}
+          CC_EMAIL: ${{ secrets.CC_EMAIL }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python scripts/send_email.py
