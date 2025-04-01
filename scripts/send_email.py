@@ -11,7 +11,9 @@ load_dotenv()
 sender_email = os.environ['SENDER_EMAIL'] 
 receiver_email = os.environ['RECEIVER_EMAIL']
 gmail_app_password = os.environ['GMAIL_APP_PASSWORD']
-search_terms = os.environ['SEARCH_TERMS']
+
+# Edit this list to change your job search terms
+search_terms = "junior software engineer,junior software developer,associate software engineer,associate software developer,software engineer,software developer"
 
 # Gmail Configuration
 smtp_server = "smtp.gmail.com"
