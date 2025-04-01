@@ -108,6 +108,11 @@ def send_email():
         
     msg['Subject'] = subject
     
+    # Add high importance headers
+    msg['X-Priority'] = '1'  # Highest priority
+    msg['X-MSMail-Priority'] = 'High'
+    msg['Importance'] = 'High'
+    
     # Attach both plain text and HTML versions
     msg.attach(MIMEText(text_body, 'plain'))
     msg.attach(MIMEText(html_body, 'html'))
