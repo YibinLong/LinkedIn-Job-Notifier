@@ -77,4 +77,4 @@ To test the script locally:
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
