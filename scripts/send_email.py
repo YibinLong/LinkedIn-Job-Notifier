@@ -24,21 +24,27 @@ geo_id = "101174742"  # Set to US
 time_filter = "r3600"  # Last hour
 
 def generate_links():
-    links = []
+    links_by_term = {}
     for term in search_terms.split(","):
+        term_stripped = term.strip()
         # Format term in title case
-        title = term.strip().title()
+        title = term_stripped.title()
         # Replace spaces with %20 and ensure term is properly formatted for URL
-        keywords = term.strip().replace(" ", "%20")
+        keywords = term_stripped.replace(" ", "%20")
         # Create two links - one for US and one for Canada
         us_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId={geo_id}&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
         canada_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId=101174742&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
-        links.append((f"USA {title}", us_link))
-        links.append((f"Canada {title}", canada_link))
-    return links
+        
+        # Store by term for grouped display
+        links_by_term[title] = [
+            (f"USA {title}", us_link),
+            (f"Canada {title}", canada_link)
+        ]
+    
+    return links_by_term
 
 def send_email():
-    job_links = generate_links()
+    links_by_term = generate_links()
     subject = "Hourly Job Search Reminder - LinkedIn"
     
     # Create HTML message with hyperlinks
@@ -50,19 +56,27 @@ def send_email():
     <p>Apply to jobs released within the last hour:</p>
     """
     
-    for title, link in job_links:
-        html_body += f'<p><a href="{link}">{title}</a></p>\n'
+    # Group links by job title with section breaks
+    for title, links in links_by_term.items():
+        html_body += f'<h3>{title}:</h3>\n<ul>\n'
+        for link_title, link_url in links:
+            html_body += f'<li><a href="{link_url}">{link_title}</a></li>\n'
+        html_body += '</ul>\n<hr>\n'
     
     html_body += """
     </body>
     </html>
     """
     
-    # Plain text version as fallback
+    # Plain text version as fallback with same grouping
     text_body = "Gmail: https://www.gmail.com\n\n"
     text_body += "Apply to these jobs released within the last hour:\n\n"
-    for title, link in job_links:
-        text_body += f"{title}: {link}\n\n"
+    
+    for title, links in links_by_term.items():
+        text_body += f"{title}:\n\n"
+        for link_title, link_url in links:
+            text_body += f"- {link_title}: {link_url}\n"
+        text_body += "\n------------------------------\n\n"
 
     msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
