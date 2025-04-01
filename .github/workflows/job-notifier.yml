@@ -2,7 +2,7 @@ name: Job Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *' # Every hour, on the hour
+    - cron: '* * * * *' # Every minute
   workflow_dispatch: # Allows you to trigger manually
 
 jobs:
