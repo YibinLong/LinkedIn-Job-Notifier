@@ -39,8 +39,8 @@ def generate_links():
         
         # Store by term for grouped display
         links_by_term[title] = [
-            (f"USA {title}", us_link),
-            (f"Canada {title}", canada_link)
+            (f"Canada {title}", canada_link),
+            (f"USA {title}", us_link)
         ]
     
     return links_by_term
