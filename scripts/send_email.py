@@ -3,6 +3,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 from dotenv import load_dotenv
+import datetime
+import pytz
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -23,7 +25,21 @@ smtp_port = 587
 # LinkedIn job search parameters
 geo_id_ca = "101174742"
 geo_id_usa = "103644278"
-time_filter = "r3600"  # Last hour
+
+# Get current time in Vancouver (PST/PDT)
+vancouver_tz = pytz.timezone('America/Vancouver')
+now = datetime.datetime.now(vancouver_tz)
+current_hour = now.hour
+
+# Determine time filter based on current hour in Vancouver
+if current_hour == 9:  # 9am - overnight summary (10pm-9am)
+    time_filter = "r39600"  # Last 11 hours (39600 seconds)
+    time_description = "since 10pm last night"
+    subject_prefix = "Overnight"
+else:
+    time_filter = "r3600"  # Last hour (3600 seconds)
+    time_description = "within the last hour"
+    subject_prefix = "Hourly"
 
 def generate_links():
     links_by_term = {}
@@ -47,7 +63,7 @@ def generate_links():
 
 def send_email():
     links_by_term = generate_links()
-    subject = "Hourly Job Search Reminder - LinkedIn"
+    subject = f"{subject_prefix} Job Search Reminder - LinkedIn"
     
     # Create HTML message with hyperlinks
     html_body = """
@@ -55,8 +71,8 @@ def send_email():
     <head></head>
     <body>
     <p><a href="https://www.gmail.com">Gmail Link</a></p>
-    <p>Apply to jobs released within the last hour:</p>
     """
+    html_body += f'<p>Apply to jobs released {time_description}:</p>'
     
     # Group links by job title with section breaks
     for title, links in links_by_term.items():
@@ -72,7 +88,7 @@ def send_email():
     
     # Plain text version as fallback with same grouping
     text_body = "Gmail: https://www.gmail.com\n\n"
-    text_body += "Apply to these jobs released within the last hour:\n\n"
+    text_body += f"Apply to these jobs released {time_description}:\n\n"
     
     for title, links in links_by_term.items():
         text_body += f"{title}:\n\n"
@@ -107,4 +123,4 @@ def send_email():
         print(f"❗ Failed to send email: {e}")
 
 if __name__ == "__main__":
-    send_email()
+    send_email() 
