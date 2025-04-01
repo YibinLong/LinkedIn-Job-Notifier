@@ -2,38 +2,77 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+from dotenv import load_dotenv
 
-# Configuration
-sender_email = os.environ['SENDER_EMAIL']
+# Load environment variables from .env file if it exists
+load_dotenv()
+
+# First check GitHub Actions environment variables, and fall back to .env if not found
+sender_email = os.environ['SENDER_EMAIL'] 
 receiver_email = os.environ['RECEIVER_EMAIL']
-app_password = os.environ['OUTLOOK_APP_PASSWORD']
-smtp_server = "smtp.office365.com"
+gmail_app_password = os.environ['GMAIL_APP_PASSWORD']
+search_terms = os.environ['SEARCH_TERMS']
+
+# Gmail Configuration
+smtp_server = "smtp.gmail.com"
 smtp_port = 587
 
 # LinkedIn job search parameters
-search_terms = os.environ.get('SEARCH_TERMS', 'software engineer')
 geo_id = "101174742"  # Set to US
 time_filter = "r3600"  # Last hour
 
-def generate_link():
-    keywords = "%20".join(search_terms.split(","))
-    return f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId={geo_id}&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true"
+def generate_links():
+    links = []
+    for term in search_terms.split(","):
+        # Format term in title case
+        title = term.strip().title()
+        # Replace spaces with %20 and ensure term is properly formatted for URL
+        keywords = term.strip().replace(" ", "%20")
+        # Create two links - one for US and one for Canada
+        us_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId={geo_id}&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
+        canada_link = f"https://www.linkedin.com/jobs/search/?f_TPR={time_filter}&geoId=101174742&keywords={keywords}&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true&spellCorrectionEnabled=true"
+        links.append((f"USA {title}", us_link))
+        links.append((f"Canada {title}", canada_link))
+    return links
 
 def send_email():
-    job_url = generate_link()
+    job_links = generate_links()
     subject = "Hourly Job Search Reminder - LinkedIn"
-    body = f"Apply to jobs within the last hour:\n\n{job_url}"
+    
+    # Create HTML message with hyperlinks
+    html_body = """
+    <html>
+    <head></head>
+    <body>
+    <p>Apply to jobs released within the last hour:</p>
+    """
+    
+    for title, link in job_links:
+        html_body += f'<p><a href="{link}">{title}</a></p>\n'
+    
+    html_body += """
+    </body>
+    </html>
+    """
+    
+    # Plain text version as fallback
+    text_body = "Apply to thesejobs released within the last hour:\n\n"
+    for title, link in job_links:
+        text_body += f"{title}: {link}\n\n"
 
-    msg = MIMEMultipart()
+    msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
+    
+    # Attach both plain text and HTML versions
+    msg.attach(MIMEText(text_body, 'plain'))
+    msg.attach(MIMEText(html_body, 'html'))
+    
     try:
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
-        server.login(sender_email, app_password)
+        server.login(sender_email, gmail_app_password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
         server.quit()
         print("✅ Email sent successfully!")
