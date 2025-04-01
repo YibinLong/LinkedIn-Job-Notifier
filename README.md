@@ -75,6 +75,10 @@ To test the script locally:
 - Edit the time filters in `scripts/send_email.py` to adjust notification windows
 - Add additional locations by including more geo_id parameters
 
+## Inspiration
+
+This project was inspired by [Deedy's post on X](https://x.com/deedydas/status/1905469839558541351) about filtering LinkedIn jobs that have been posted within the last hour.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
