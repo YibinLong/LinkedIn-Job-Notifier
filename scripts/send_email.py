@@ -2,7 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
-from python_dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -10,7 +10,7 @@ load_dotenv()
 # First check GitHub Actions environment variables, and fall back to .env if not found
 sender_email = os.environ['SENDER_EMAIL'] 
 receiver_email = os.environ['RECEIVER_EMAIL']
-cc_email = os.environ['CC_EMAIL']
+cc_email = os.environ.get('CC_EMAIL', '')
 gmail_app_password = os.environ['GMAIL_APP_PASSWORD']
 
 # Edit this list to change your job search terms
