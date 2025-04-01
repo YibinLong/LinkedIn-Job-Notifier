@@ -2,6 +2,12 @@
 
 An automated tool that sends hourly or overnight email notifications for new LinkedIn job postings matching your search criteria.
 
+## What You'll Get
+
+Here's an example of the notification email you'll receive:
+
+![Sample Job Notification Email](img/email.png)
+
 ## Features
 
 - Sends hourly job notifications during the day (10am-10pm PST)
